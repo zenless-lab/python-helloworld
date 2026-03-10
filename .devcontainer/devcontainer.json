@@ -1,0 +1,30 @@
+{
+  "name": "Dev Container for Python Development",
+  "image": "mcr.microsoft.com/devcontainers/base:noble",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "configureZshAsDefaultShell": true
+    },
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/git-lfs:1": {},
+    "ghcr.io/zenless-lab/devcontainer-features/uv:1": {
+      // NOTE: Align the Python version with the project's pinned version to prevent redundant `.venv` creation on container restart.
+      "pythonVersion": "3.10"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "github.copilot-chat",
+        "github.vscode-github-actions",
+        "editorconfig.editorconfig",
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "astral-sh.ty",
+        "davidanson.vscode-markdownlint",
+        "redhat.vscode-yaml",
+        "tamasfe.even-better-toml"
+      ]
+    }
+  }
+}
