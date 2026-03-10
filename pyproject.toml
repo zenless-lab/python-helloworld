@@ -1,0 +1,99 @@
+[project]
+# NOTE: Change this to your library name
+name = "python-library"
+version = "0.1.0"
+# NOTE: Change this to your library description
+description = "A minimalist and modern boilerplate for rapid Python library development."
+readme = "README.md"
+authors = [
+    # NOTE: Change this to your name and email
+    { name = "Your Name", email = "your.email@example.com" }
+]
+requires-python = ">=3.10"
+dependencies = []
+
+[dependency-groups]
+# NOTE: Remove following lines and run `uv add --dev zensical pre-commit ruff ty pytest pytest-cov pytest-mock` again to update dev dependencies.
+dev = [
+    "pre-commit>=4.5.1",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "pytest-mock>=3.15.1",
+    "ruff>=0.15.5",
+    "ty>=0.0.21",
+    "zensical>=0.0.24",
+]
+
+[build-system]
+requires = ["uv_build>=0.10.9,<0.11.0"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = ["tests"]
+
+[tool.ty.src]
+include = ["src", "tests"]
+exclude = [
+    # NOTE: remove if you don't have scripts directory
+    "scripts",
+    # NOTE: remove if you don't have notebooks directory
+    "notebooks",
+]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = 80
+
+[tool.ruff.lint]
+select = [
+    "A",    # NOTE: flake8-builtins: checks for the use of shadowed built-ins.
+    "B",    # NOTE: flake8-bugbear: catches common Python bugs and code smells.
+    "C4",   # NOTE: flake8-comprehensions: helps simplify complex list, set, and dictionary comprehensions.
+    "DTZ",  # NOTE: flake8-datetimez: enforces using timezone-aware datetimes.
+    "E",    # NOTE: pycodestyle errors: checks for violations of the PEP 8 style guide.
+    "EM",   # NOTE: flake8-errmsg: enforces that exceptions are created with string literals.
+    "F",    # NOTE: pyflakes: a fast and simple linter for Python.
+    "I",    # NOTE: isort: checks for correctly sorted and organized imports.
+    "ICN",  # NOTE: flake8-import-conventions: enforces naming conventions for imported modules.
+    "INP",  # NOTE: flake8-no-pep420: flags implicit namespace packages.
+    "ISC",  # NOTE: flake8-implicit-str-concat: warns about implicit string concatenation on a single line.
+    "N",    # NOTE: pep8-naming: enforces PEP 8 naming conventions.
+    "PL",   # NOTE: pylint: checks for a wide range of code quality issues.
+    "Q",    # NOTE: flake8-quotes: checks for consistent use of single or double quotes.
+    "RUF",  # NOTE: ruff: contains rules specific to the Ruff linter itself.
+    "S",    # NOTE: flake8-bandit: checks for common security vulnerabilities.
+    "T10",  # NOTE: flake8-debugger: flags the use of debugger statements like pdb.set_trace().
+    "T20",  # NOTE: flake8-print: flags the use of print statements.
+    "TID",  # NOTE: tidy-imports: helps to organize and clean up imports.
+    "UP",   # NOTE: pyupgrade: helps upgrade code to newer Python syntax.
+    "W",    # NOTE: pycodestyle warnings: checks for violations of the PEP 8 style guide.
+    "YTT",  # NOTE: flake8-2020: checks for issues with Python 2.x code that may be an issue in Python 3.
+]
+
+ignore = [
+    # "S105",     # NOTE: Ignores hardcoded password strings
+    # "S106",     # NOTE: Ignores hardcoded passwords in default arguments
+    # "S107",     # NOTE: Ignores hardcoded passwords in function calls
+    "C901",     # NOTE: Ignores complex functions
+    "PLR0911",  # NOTE: Ignores functions with too many return statements
+    "PLR0912",  # NOTE: Ignores functions with too many branches
+    "PLR0913",  # NOTE: Ignores functions with too many arguments
+    "PLR0915",  # NOTE: Ignores functions with too many statements
+    "ISC001",   # NOTE: Ignores implicit string concatenation
+]
+unfixable = [
+    "F401",     # NOTE: Unused imports, require manual review
+]
+exclude = []
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/*" = ["INP001", "T201"]
+"tests/**/*" = ["PLC1901", "PLR2004", "PLR6301", "S", "TID252", "ARG001"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"

@@ -1,0 +1,169 @@
+[project]
+
+# TODO: Fill in the following fields before publishing the site.
+# Displayed in the page header and browser title.
+# FIXME: Change site_name to your <project_name> when using this template.
+site_name = "Python Library Template"
+
+# Used in the HTML head for search engines and previews.
+# FIXME: Change site_description to your <project_description> when using this template.
+site_description = "A modern template for building, testing, documenting, and publishing a Python library."
+
+# Used in the HTML head metadata.
+# FIXME: Change site_author to your <username> when using this template.
+site_author = "zenless-lab"
+
+# Canonical URL for the published site.
+# FIXME: Change site_url to https://<username>.github.io/<project_slug>/ when using this template.
+site_url = "https://zenless-lab.github.io/python-library/"
+
+# Footer copyright notice. HTML is allowed.
+# FIXME: Change copyright to your <username> when using this template.
+copyright = """
+Copyright &copy; 2026 zenless-lab.
+"""
+
+# FIXME: Change repo_name to <username>/<project_slug> when using this template.
+repo_name = "zenless-lab/python-library"
+# FIXME: Change repo_url to https://github.com/<username>/<project_slug> when using this template.
+repo_url = "https://github.com/zenless-lab/python-library"
+
+# Optional explicit navigation. If omitted, navigation is inferred from docs/.
+# nav = [
+#   { "Get started" = "index.md" },
+#   { "Markdown in 5min" = "markdown.md" },
+# ]
+
+# Additional CSS files, relative to docs/.
+#extra_css = ["stylesheets/extra.css"]
+
+# Additional JavaScript files, relative to docs/ unless using a full URL.
+extra_javascript = [
+    "javascripts/mathjax.js",
+    "https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"
+]
+
+# Theme settings.
+[project.theme]
+
+# Uncomment to use the classic Material for MkDocs look.
+#variant = "classic"
+
+# Uncomment to load theme overrides from this directory.
+#custom_dir = "overrides"
+
+# Uncomment to use a custom favicon from docs/.
+#favicon = "images/favicon.png"
+
+# UI language and HTML lang attribute.
+language = "en"
+
+# Feature toggles for site behavior.
+features = [
+    # Allow users to dismiss the announcement bar.
+    "announce.dismiss",
+
+    # Uncomment to add an edit-page button when a repository is configured.
+    #"content.action.edit",
+
+    # Uncomment to add a button that shows the page source.
+    #"content.action.view",
+
+    # Enable annotations on code blocks.
+    "content.code.annotate",
+
+    # Add a copy button to code blocks.
+    "content.code.copy",
+
+    # Allow selecting line ranges in code blocks.
+    "content.code.select",
+
+    # Show footnotes as inline tooltips.
+    "content.footnote.tooltips",
+
+    # Sync content tabs that share the same label.
+    "content.tabs.link",
+
+    # Enable richer link tooltips.
+    "content.tooltips",
+
+    # Uncomment to auto-hide parts of the header while scrolling.
+    # "header.autohide",
+
+    # Uncomment to expand all navigation sections by default.
+    # "navigation.expand",
+
+    # Add previous/next navigation to the footer.
+    "navigation.footer",
+
+    # Allow sections to use index pages.
+    "navigation.indexes",
+
+    # Load internal pages without a full page refresh.
+    "navigation.instant",
+
+    # Prefetch pages on hover.
+    "navigation.instant.prefetch",
+
+    # Uncomment to show a progress indicator during instant navigation.
+    #"navigation.instant.progress",
+
+    # Show breadcrumb navigation above the page title.
+    "navigation.path",
+
+    # Uncomment to render only visible navigation items.
+    #"navigation.prune",
+
+    # Group top-level pages into navigation sections.
+    "navigation.sections",
+
+    # Uncomment to render top-level navigation as tabs.
+    #"navigation.tabs",
+
+    # Uncomment to keep navigation tabs visible while scrolling.
+    #"navigation.tabs.sticky",
+
+    # Show a back-to-top button when scrolling upward.
+    "navigation.top",
+
+    # Keep the URL hash in sync with the active heading.
+    "navigation.tracking",
+
+    # Highlight matching terms after opening a search result.
+    "search.highlight",
+
+    # Uncomment to keep the active table-of-contents entry in view.
+    # "toc.follow",
+
+    # Uncomment to merge the table of contents into the left navigation.
+    #"toc.integrate",
+]
+
+# Color palette options.
+[[project.theme.palette]]
+scheme = "default"
+toggle.icon = "lucide/sun"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+scheme = "slate"
+toggle.icon = "lucide/moon"
+toggle.name = "Switch to light mode"
+
+# Uncomment to configure UI and code fonts.
+#[project.theme.font]
+#text = "Inter"
+#code = "Jetbrains Mono"
+
+# Uncomment to customize the site and repository icons.
+#[project.theme.icon]
+#logo = "lucide/smile"
+#repo = "lucide/smile"
+
+# Uncomment to add social links and other extra metadata.
+#[[project.extra.social]]
+#icon = "fontawesome/brands/github"
+#link = "https://github.com/user/repo"
+
+[project.markdown_extensions.pymdownx.arithmatex]
+generic = true
