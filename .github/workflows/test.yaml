@@ -206,13 +206,13 @@ jobs:
       - name: Run TruffleHog Scan
         id: run-trufflehog
         run: |
-          docker run --rm -v "${{ github.workspace }}:/pwd" trufflesecurity/trufflehog:latest filesystem /pwd/dist/ --archive-max-depth=2 --fail 2>&1 | tee trufflehog.log
+          docker run --rm -v "${{ github.workspace }}:/pwd" trufflesecurity/trufflehog:latest filesystem /pwd/dist/ --archive-max-depth=2 --fail --github-actions
           echo "✅ **TruffleHog**: No verified secrets found in artifacts." >> $GITHUB_STEP_SUMMARY
 
       - name: Run GitLeaks Scan
         id: run-gitleaks
         run: |
-          docker run --rm -v "${{ github.workspace }}:/path" ghcr.io/gitleaks/gitleaks:latest dir /path/dist/ -c /path/.gitleaks.toml --max-archive-depth=2 --exit-code=1 2>&1 | tee gitleaks.log
+          docker run --rm -v "${{ github.workspace }}:/path" ghcr.io/gitleaks/gitleaks:latest dir /path/dist/ -c /path/.gitleaks.toml --max-archive-depth=2 --exit-code=1 --redact --verbose
           echo "✅ **GitLeaks**: No hardcoded secrets found in artifacts." >> $GITHUB_STEP_SUMMARY
 
       - name: Report Scan Results
@@ -224,12 +224,7 @@ jobs:
             echo "✅ **TruffleHog**: Scan passed, no secrets found" >> $GITHUB_STEP_SUMMARY
           elif [ "${{ steps.run-trufflehog.outcome }}" == "failure" ]; then
             echo "🚨 **TruffleHog**: Active secrets detected!" >> $GITHUB_STEP_SUMMARY
-            echo "<details><summary>Click to expand scan report</summary>" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "\`\`\`text" >> $GITHUB_STEP_SUMMARY
-            cat trufflehog.log >> $GITHUB_STEP_SUMMARY
-            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-            echo "</details><br>" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ *For security reasons, details are not printed here. Please run TruffleHog locally to identify the secret.*" >> $GITHUB_STEP_SUMMARY
           else
             echo "⚠️ **TruffleHog**: Skipped due to previous step failure" >> $GITHUB_STEP_SUMMARY
           fi
@@ -238,12 +233,7 @@ jobs:
             echo "✅ **GitLeaks**: Scan passed, no hardcoded secrets found" >> $GITHUB_STEP_SUMMARY
           elif [ "${{ steps.run-gitleaks.outcome }}" == "failure" ]; then
             echo "🚨 **GitLeaks**: Hardcoded secrets detected!" >> $GITHUB_STEP_SUMMARY
-            echo "<details><summary>Click to expand scan report</summary>" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "\`\`\`text" >> $GITHUB_STEP_SUMMARY
-            cat gitleaks.log >> $GITHUB_STEP_SUMMARY
-            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-            echo "</details><br>" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ *For security reasons, details are not printed here. Please run GitLeaks locally to identify the secret.*" >> $GITHUB_STEP_SUMMARY
           else
             echo "⚠️ **GitLeaks**: Skipped due to previous step failure" >> $GITHUB_STEP_SUMMARY
           fi
