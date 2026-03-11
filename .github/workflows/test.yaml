@@ -105,7 +105,7 @@ jobs:
           if-no-files-found: error
 
   smoke-test:
-    name: Smoke Test Distributions (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    name: Smoke Test Distributions
     needs: build
     if: github.event_name != 'pull_request'
     runs-on: ${{ matrix.os }}
@@ -150,7 +150,7 @@ jobs:
           uv run --python ${{ matrix.python-version }} --isolated --no-project --with pytest --with dist/*.tar.gz pytest tests/ 2>&1 | tee pytest_sdist.log
           echo "✅ **Source Distribution (.tar.gz)** smoke test passed! (${{ matrix.os }} / Python ${{ matrix.python-version }})" >> $GITHUB_STEP_SUMMARY
 
-      - name: Report Test Results
+      - name: Report Test Results (${{ matrix.os }} / Python ${{ matrix.python-version }})
         if: always()
         shell: bash
         run: |
