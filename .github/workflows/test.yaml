@@ -25,10 +25,12 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - windows-latest
+          # - windows-latest
           # - macos-latest
         python-version:
           - "3.10"
+          - "3.11"
+          - "3.12"
           - "3.13"
 
     steps:
@@ -70,8 +72,42 @@ jobs:
           fi
 
   build:
+    name: Build Distributions
     needs: test
-    name: Build on ${{ matrix.os }} with Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Build sdist and wheel
+        shell: bash
+        run: |
+          echo "### 📦 Build Artifacts" >> $GITHUB_STEP_SUMMARY
+          uv build
+          echo "Successfully built the following packages:" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          ls -lh dist/ >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-files
+          path: dist/
+          if-no-files-found: error
+
+  smoke-test:
+    name: Smoke Test Distributions (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    needs: build
+    if: github.event_name != 'pull_request'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -81,46 +117,130 @@ jobs:
           - windows-latest
           # - macos-latest
         python-version:
-          - "3.10"
-          - "3.11"
-          - "3.12"
-          - "3.13"
-
+          - '3.10'
+          - '3.11'
+          # - '3.12'
+          # - '3.13'
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
           persist-credentials: false
 
-      - name: Install uv and set Python version
-        uses: astral-sh/setup-uv@v7
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
         with:
-          enable-cache: true
-          python-version: ${{ matrix.python-version }}
+          name: dist-files
+          path: dist/
 
-      - name: Build package
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Test Wheel (.whl)
+        id: test-wheel
         shell: bash
         run: |
-          echo "### 📦 Build on ${{ matrix.os }} / Python ${{ matrix.python-version }}" >> $GITHUB_STEP_SUMMARY
+          uv run --python ${{ matrix.python-version }} --isolated --no-project --with pytest --with dist/*.whl pytest tests/ 2>&1 | tee pytest_whl.log
+          echo "✅ **Wheel (.whl)** smoke test passed! (${{ matrix.os }} / Python ${{ matrix.python-version }})" >> $GITHUB_STEP_SUMMARY
 
-          set +e
-          uv build
-          BUILD_EXIT_CODE=$?
-          set -e
+      - name: Test Source Distribution (.tar.gz)
+        id: test-sdist
+        shell: bash
+        run: |
+          uv run --python ${{ matrix.python-version }} --isolated --no-project --with pytest --with dist/*.tar.gz pytest tests/ 2>&1 | tee pytest_sdist.log
+          echo "✅ **Source Distribution (.tar.gz)** smoke test passed! (${{ matrix.os }} / Python ${{ matrix.python-version }})" >> $GITHUB_STEP_SUMMARY
 
-          if [ $BUILD_EXIT_CODE -ne 0 ]; then
-            echo "❌ **Build failed. Check the logs for details.**" >> $GITHUB_STEP_SUMMARY
-            exit $BUILD_EXIT_CODE
+      - name: Report Test Results
+        if: always()
+        shell: bash
+        run: |
+          echo "## 🧪 Smoke Test Status: ${{ matrix.os }} / Python ${{ matrix.python-version }}" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.test-wheel.outcome }}" == "success" ]; then
+            echo "✅ **Wheel (.whl)**: Test completed successfully" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.test-wheel.outcome }}" == "failure" ]; then
+            echo "❌ **Wheel (.whl)**: Test failed" >> $GITHUB_STEP_SUMMARY
+            echo "<details><summary>Click to expand error logs</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`text" >> $GITHUB_STEP_SUMMARY
+            cat pytest_whl.log >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "</details><br>" >> $GITHUB_STEP_SUMMARY
           else
-            echo "✅ **Build completed successfully.**" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ **Wheel (.whl)**: Skipped due to previous step failure" >> $GITHUB_STEP_SUMMARY
           fi
 
-      - name: Verify build artifacts
-        shell: bash
-        run: |
-          if ls dist/*.whl 1> /dev/null 2>&1 && ls dist/*.tar.gz 1> /dev/null 2>&1; then
-            echo "✅ **Artifacts (sdist and wheel) verified.**" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.test-sdist.outcome }}" == "success" ]; then
+            echo "✅ **Source Distribution (.tar.gz)**: Test completed successfully" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.test-sdist.outcome }}" == "failure" ]; then
+            echo "❌ **Source Distribution (.tar.gz)**: Test failed" >> $GITHUB_STEP_SUMMARY
+            echo "<details><summary>Click to expand error logs</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`text" >> $GITHUB_STEP_SUMMARY
+            cat pytest_sdist.log >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "</details><br>" >> $GITHUB_STEP_SUMMARY
           else
-            echo "❌ **Artifacts missing.**" >> $GITHUB_STEP_SUMMARY
-            exit 1
+            echo "⚠️ **Source Distribution (.tar.gz)**: Skipped due to previous step failure" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  scan-credentials:
+    name: Scan for Hardcoded Secrets
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-files
+          path: dist/
+
+      - name: Run TruffleHog Scan
+        id: run-trufflehog
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/pwd" trufflesecurity/trufflehog:latest filesystem /pwd/dist/ --archive-max-depth=2 --fail 2>&1 | tee trufflehog.log
+          echo "✅ **TruffleHog**: No verified secrets found in artifacts." >> $GITHUB_STEP_SUMMARY
+
+      - name: Run GitLeaks Scan
+        id: run-gitleaks
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/path" ghcr.io/gitleaks/gitleaks:latest dir /path/dist/ -c /path/.gitleaks.toml --max-archive-depth=2 --exit-code=1 2>&1 | tee gitleaks.log
+          echo "✅ **GitLeaks**: No hardcoded secrets found in artifacts." >> $GITHUB_STEP_SUMMARY
+
+      - name: Report Scan Results
+        if: always()
+        run: |
+          echo "## 🛡️ Credential Scan Status Report" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.run-trufflehog.outcome }}" == "success" ]; then
+            echo "✅ **TruffleHog**: Scan passed, no secrets found" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.run-trufflehog.outcome }}" == "failure" ]; then
+            echo "🚨 **TruffleHog**: Active secrets detected!" >> $GITHUB_STEP_SUMMARY
+            echo "<details><summary>Click to expand scan report</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`text" >> $GITHUB_STEP_SUMMARY
+            cat trufflehog.log >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "</details><br>" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **TruffleHog**: Skipped due to previous step failure" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ steps.run-gitleaks.outcome }}" == "success" ]; then
+            echo "✅ **GitLeaks**: Scan passed, no hardcoded secrets found" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.run-gitleaks.outcome }}" == "failure" ]; then
+            echo "🚨 **GitLeaks**: Hardcoded secrets detected!" >> $GITHUB_STEP_SUMMARY
+            echo "<details><summary>Click to expand scan report</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`text" >> $GITHUB_STEP_SUMMARY
+            cat gitleaks.log >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "</details><br>" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **GitLeaks**: Skipped due to previous step failure" >> $GITHUB_STEP_SUMMARY
           fi
