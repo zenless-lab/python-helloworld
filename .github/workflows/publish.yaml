@@ -54,6 +54,18 @@ jobs:
     name: Smoke Test Distributions
     needs: build
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          # - macos-latest
+        python-version:
+          - '3.10'
+          - '3.11'
+          # - '3.12'
+          # - '3.13'
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -69,22 +81,25 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7
 
-      - name: Test Wheel (.whl)
+      - name: Test Wheel(${{ matrix.os }} / Python ${{ matrix.python-version }})
         id: test-wheel
+        shell: bash
         run: |
-          uv run --isolated --no-project --with pytest --with dist/*.whl pytest tests/ 2>&1 | tee pytest_whl.log
-          echo "✅ **Wheel (.whl)** smoke test passed!" >> $GITHUB_STEP_SUMMARY
+          uv run --python ${{ matrix.python-version }} --isolated --no-project --with pytest --with dist/*.whl pytest tests/ 2>&1 | tee pytest_whl.log
+          echo "✅ **Wheel (.whl)** smoke test passed! (${{ matrix.os }} / Python ${{ matrix.python-version }})" >> $GITHUB_STEP_SUMMARY
 
-      - name: Test Source Distribution (.tar.gz)
+      - name: Test Source Distribution (${{ matrix.os }} / Python ${{ matrix.python-version }})
         id: test-sdist
+        shell: bash
         run: |
-          uv run --isolated --no-project --with pytest --with dist/*.tar.gz pytest tests/ 2>&1 | tee pytest_sdist.log
-          echo "✅ **Source Distribution (.tar.gz)** smoke test passed!" >> $GITHUB_STEP_SUMMARY
+          uv run --python ${{ matrix.python-version }} --isolated --no-project --with pytest --with dist/*.tar.gz pytest tests/ 2>&1 | tee pytest_sdist.log
+          echo "✅ **Source Distribution (.tar.gz)** smoke test passed! (${{ matrix.os }} / Python ${{ matrix.python-version }})" >> $GITHUB_STEP_SUMMARY
 
-      - name: Report Test Results
+      - name: Report Test Results (${{ matrix.os }} / Python ${{ matrix.python-version }})
         if: always()
+        shell: bash
         run: |
-          echo "## 🧪 Smoke Test Status Report" >> $GITHUB_STEP_SUMMARY
+          echo "## 🧪 Smoke Test Status: ${{ matrix.os }} / Python ${{ matrix.python-version }}" >> $GITHUB_STEP_SUMMARY
 
           if [ "${{ steps.test-wheel.outcome }}" == "success" ]; then
             echo "✅ **Wheel (.whl)**: Test completed successfully" >> $GITHUB_STEP_SUMMARY
