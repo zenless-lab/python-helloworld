@@ -1,7 +1,7 @@
 [project]
 # NOTE: Change this to your library name
 name = "python-helloworld"
-version = "0.1.0"
+version = "0.1.1"
 # NOTE: Change this to your library description
 description = "A minimalist and modern boilerplate for rapid Python library development."
 readme = "README.md"
