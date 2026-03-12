@@ -214,7 +214,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      # NOTE: Replace `python_helloworld` with your actual package name to provide a direct link to the published package on PyPI
+      # NOTE: Replace `python-helloworld` with your actual package name to provide a direct link to the published package on PyPI
       url: https://pypi.org/project/python-helloworld/
     permissions:
       id-token: write
