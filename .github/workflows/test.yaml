@@ -107,8 +107,8 @@ jobs:
           path: dist/
           if-no-files-found: error
 
-  smoke-test:
-    name: Smoke Test Distributions
+  distributions-test:
+    name: Test Distributions
     needs: build
     if: github.event_name != 'pull_request'
     runs-on: ${{ matrix.os }}
@@ -144,20 +144,20 @@ jobs:
         shell: bash
         run: |
           uv run --python ${{ matrix.python-version }} --isolated --no-project --with pytest --with dist/*.whl pytest tests/ 2>&1 | tee pytest_whl.log
-          echo "✅ **Wheel (.whl)** smoke test passed! (${{ matrix.os }} / Python ${{ matrix.python-version }})" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Wheel (.whl)** test passed! (${{ matrix.os }} / Python ${{ matrix.python-version }})" >> $GITHUB_STEP_SUMMARY
 
       - name: Test Source Distribution (.tar.gz)
         id: test-sdist
         shell: bash
         run: |
           uv run --python ${{ matrix.python-version }} --isolated --no-project --with pytest --with dist/*.tar.gz pytest tests/ 2>&1 | tee pytest_sdist.log
-          echo "✅ **Source Distribution (.tar.gz)** smoke test passed! (${{ matrix.os }} / Python ${{ matrix.python-version }})" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Source Distribution (.tar.gz)** test passed! (${{ matrix.os }} / Python ${{ matrix.python-version }})" >> $GITHUB_STEP_SUMMARY
 
       - name: Report Test Results (${{ matrix.os }} / Python ${{ matrix.python-version }})
         if: always()
         shell: bash
         run: |
-          echo "## 🧪 Smoke Test Status: ${{ matrix.os }} / Python ${{ matrix.python-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "## 🧪 Test Status: ${{ matrix.os }} / Python ${{ matrix.python-version }}" >> $GITHUB_STEP_SUMMARY
 
           if [ "${{ steps.test-wheel.outcome }}" == "success" ]; then
             echo "✅ **Wheel (.whl)**: Test completed successfully" >> $GITHUB_STEP_SUMMARY
