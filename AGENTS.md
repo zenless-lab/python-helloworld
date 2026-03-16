@@ -22,7 +22,7 @@
 - Run type checks with `uv run ty check` locally. CI uses `uv run ty check --output-format=github`.
 - Run tests with `uv run pytest`.
 - Build distributions with `uv build`.
-- Build documentation with `zensical build --clean`.
+- Build documentation with `uv run zensical build --clean`.
 
 ## Repository Layout
 
