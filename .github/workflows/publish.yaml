@@ -202,6 +202,16 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7
 
+      - name: Block publishing until Test PyPI is configured
+        run: |
+          echo "Test PyPI publishing is intentionally disabled." >&2
+          echo "Before enabling this workflow, verify that the 'testpypi' environment is configured correctly," >&2
+          echo "that the project has Trusted Publishing configured on Test PyPI," >&2
+          echo "and that this repository should publish packages at all." >&2
+          echo "If publishing is not needed, remove .github/workflows/publish.yaml." >&2
+          exit 1
+
+      # NOTE: To enable Test PyPI publishing, remove the blocking step above.
       - name: Publish to Test PyPI
         run: |
           uv publish --publish-url https://test.pypi.org/legacy/
@@ -229,6 +239,16 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7
 
+      - name: Block publishing until PyPI is configured
+        run: |
+          echo "PyPI publishing is intentionally disabled." >&2
+          echo "Before enabling this workflow, verify that the 'pypi' environment is configured correctly," >&2
+          echo "that the project has Trusted Publishing configured on PyPI," >&2
+          echo "and that this repository should publish packages at all." >&2
+          echo "If publishing is not needed, remove .github/workflows/publish.yaml." >&2
+          exit 1
+
+      # NOTE: To enable PyPI publishing, remove the blocking step above.
       - name: Publish to PyPI
         run: |
           uv publish
