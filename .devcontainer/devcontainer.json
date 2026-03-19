@@ -1,6 +1,6 @@
 {
   "name": "Dev Container for Python Development",
-  "image": "mcr.microsoft.com/devcontainers/universal:noble",
+  "image": "mcr.microsoft.com/devcontainers/base:noble",
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
       "configureZshAsDefaultShell": true
