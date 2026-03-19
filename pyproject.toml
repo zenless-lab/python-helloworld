@@ -36,6 +36,7 @@ testpaths = ["tests"]
 [tool.ty.src]
 include = ["src", "tests"]
 exclude = [
+    ".agents",
     # NOTE: remove if you don't have scripts directory
     "scripts",
     # NOTE: remove if you don't have notebooks directory

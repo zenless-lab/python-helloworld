@@ -32,6 +32,7 @@ repos:
         entry: uvx ty check
         language: system
         types_or: [ python, pyi ]
+        pass_filenames: false
 
   - repo: https://github.com/astral-sh/uv-pre-commit
     rev: 0.10.9
