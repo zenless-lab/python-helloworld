@@ -7,11 +7,14 @@
     },
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/git-lfs:1": {},
+    // For agent skill installation, remove if not needed.
+    "ghcr.io/devcontainers/features/node:1": {},
     "ghcr.io/zenless-lab/devcontainer-features/uv:1": {
       // NOTE: Align the Python version with the project's pinned version to prevent redundant `.venv` creation on container restart.
       "pythonVersion": "3.10"
     }
   },
+  "postCreateCommand": "uv run pre-commit install",
   "customizations": {
     "vscode": {
       "extensions": [

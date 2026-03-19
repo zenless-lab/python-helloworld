@@ -63,6 +63,7 @@ uv run pre-commit install
 - **Tests:** `uv run pytest`
 - **Documentation site generation:** `zensical`
 - **Git hooks:** `uv run pre-commit install`
+- **Node.js in the development environment:** available for running the `skills` CLI via `pnpm dlx`
 
 Why these choices:
 
@@ -78,7 +79,7 @@ The following structure is based on the current repository contents, not a hypot
 
 ```text
 .
-├── .agents/                 # Agent-specific resources and skill placeholders
+├── .agents/                 # Agent resources and installed skill workspace
 ├── .devcontainer/           # Dev container configuration
 ├── .github/workflows/       # CI workflows for docs, publish, quality, secrets, and tests
 ├── docs/                    # Documentation source files for the site
@@ -98,7 +99,22 @@ The following structure is based on the current repository contents, not a hypot
 
 ## AI-Assisted Development
 
-This template is intentionally structured for AI-assisted programming. The repository includes `.agents/` scaffolding and now ships with an `AGENTS.md` guide that explains the repository at a useful level for coding agents.
+This template is intentionally structured for AI-assisted programming. The repository ships with an `AGENTS.md` guide that explains the repository at a useful level for coding agents.
+
+Default skills are no longer stored directly in the template repository. Instead, install them on first setup with the `skills` command:
+
+```bash
+pnpm dlx skills add zenless-lab/skills --skill python-docstring-expert --skill python-comment-expert --skill google-docstring-crafter --skill secret-scanner --skill skill-crafter --skill agents-md-crafter --skill readme-crafter --skill conventional-commits
+```
+
+What this command does:
+
+- `pnpm dlx` downloads and runs the `skills` CLI without requiring a permanent global install.
+- `skills add` tells the CLI to install skills into the current repository's agent workspace.
+- `zenless-lab/skills` is the source repository that provides the published skills.
+- Each `--skill ...` flag selects one default skill to install, such as docstring, commenting, README, commit-message, and secret-scanning helpers.
+
+The development environment includes Node.js so this command can run directly in the dev container. If you want additional skills beyond the default set above, browse the available catalog in the `zenless-lab/skills` repository and install the ones you need.
 
 Agents may update `AGENTS.md` when they make structural changes, but that should not be treated as self-maintaining truth. When the repository changes in meaningful ways, review and update `AGENTS.md` so it continues to match reality. That extra maintenance step materially improves agent output quality, especially with lighter models.
 

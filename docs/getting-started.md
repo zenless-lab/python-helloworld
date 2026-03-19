@@ -47,6 +47,23 @@ uv run pre-commit install
 
 These steps align the local environment with the repository configuration and enable automated checks before commits.
 
+## Install Default Skills
+
+This template no longer stores preset skills directly in the repository. On first setup, install the default skill set with:
+
+```bash
+pnpm dlx skills add zenless-lab/skills --skill python-docstring-expert --skill python-comment-expert --skill google-docstring-crafter --skill secret-scanner --skill skill-crafter --skill agents-md-crafter --skill readme-crafter --skill conventional-commits
+```
+
+This command means:
+
+- `pnpm dlx` downloads and runs the `skills` CLI without a permanent global install.
+- `skills add` installs skills into the current repository's agent workspace.
+- `zenless-lab/skills` is the source repository for the published skills.
+- Each `--skill ...` flag picks one default skill to install.
+
+The development environment includes Node.js so this command can run directly in the dev container. For more skills beyond the default set, check the `zenless-lab/skills` repository and install the ones that fit your workflow.
+
 ## Replace Placeholder Content
 
 This repository intentionally keeps the example implementation very small. Before starting real work, review and replace:
